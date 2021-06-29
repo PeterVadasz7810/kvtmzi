@@ -5,3 +5,6 @@ utils/teszt.py
 utils/csvreader.py
 utils/Vetitesek_szamokban.csv
 utils/Vetitesek_szamokban.xlsx
+.venv/*
+__pycache__/*
+.vscode/*
