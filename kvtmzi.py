@@ -7,6 +7,8 @@ import kvtmoziweb as KMWeb
 from letszam import get_letszam
 from foto import get_photo
 from filmek import filmlista_frissit
+from timeit import default_timer as timer
+from datetime import timedelta
 
 def get_first_item(items):
     if len(items)!=0:
@@ -32,8 +34,10 @@ def update_letszam(db, event_list):
 
 def vetitesek():
     print('Filmlista frissítése...')
+    start = timer()
     filmlista_frissit()
-
+    end = timer()
+    print(f"... megtörtént {timedelta(seconds=end-start)} másodperc alatt")
     sql = '''
     SELECT Library.SiteLibID, Film.SiteFilmID, DateTime(Event.Date), Event.EventID 
     FROM Event 
@@ -41,10 +45,16 @@ def vetitesek():
     INNER JOIN Library ON Library.LibID = Event.LibID 
     WHERE Child+Adult+Granny = 0
     '''
+    start = timer()
     print('Fotó oldal lekérése...')
     foto_oldal = KMWeb.WebFoto(KMWeb.URL_FOTOK)
     foto_oldal_adat_lista = [adat for adat in foto_oldal.foto_lista()]
+    end = timer()
+    print(f"... megtörtént {timedelta(seconds=end-start)} másodperc alatt")  
+
+     
     print('Vetítések oldal lekérése...')
+    start = timer()
     vetitesek = KMWeb.WebVetites(KMWeb.URL_VETITESEK)
  
     vetites_lista_all = [adat for adat in vetitesek.vetites_lista()]
@@ -61,8 +71,12 @@ def vetitesek():
 
     del tmp_village_list
     vetites_lista = []
+    end = timer()
+    print(f"... megtörtént {timedelta(seconds=end-start)} másodperc alatt")
 
+    
     print('Vetítések adatainak frissítése, új vetítések rögzítése...')
+    start = timer()
     for vetites in vetites_lista_all:
 
         if vetites['Intezmeny'].split()[0] in village_list:
@@ -84,10 +98,16 @@ def vetitesek():
                 add_foto(database,vetites_lista[len(vetites_lista)-1],foto_oldal_adat_lista)
             if event_id == None:    
                 database.setDatas('INSERT INTO Event(LibID,FilmID,Date,Program,Guest) VALUES(?,?,julianday(?),?,?)',vetites_lista[len(vetites_lista)-1].getEventData())
-    print(f'Vetítések száma: {len(vetites_lista)}')
+    end = timer()
+    print(f"... megtörtént {timedelta(seconds=end-start)} másodperc alatt")
+    print(f'\nVetítések száma: {len(vetites_lista)}\n')
+
     print('Létszámadatok frissítése...')
+    start = timer()
     adatpotlas_lista = database.getDatas(sql,'')
     update_letszam(database, adatpotlas_lista)
+    end = timer()
+    print(f"... megtörtént {timedelta(seconds=end-start)} másodperc alatt")
     print('A műveletek sikeresen végrehajtásra kerültek.')
     
 if __name__ == "__main__":
