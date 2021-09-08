@@ -20,7 +20,7 @@ def getlibraries():
     # Megkeressük a feldolgozandó adatot
     tag=pagedata.find("select",attrs={"id":"ctl00_ContentPlaceHolder1_DropDownListKonyvtar"})
 
-    with open ('telepulesek.json') as json_data:
+    with open ('telepulesek.json', 'r', encoding='utf-8') as json_data:
         mpoints = json.load(json_data)
 
     libraries = []
