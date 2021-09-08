@@ -142,7 +142,7 @@ def get_letszam(LibID, FilmID, EventDate):
             if data[const['EVENTARGUMENT']] == '':
                 data[const['EVENTARGUMENT']] = dict['sid']
             else:
-                print(f'Időpontütközés!!! - {data[const['EVENTARGUMENT']]}')
+                print(f'Időpontütközés!!! - {data[const["EVENTARGUMENT"]]}')
                 data[const['EVENTARGUMENT']] = dict['sid']
 
     data[const['DROPDOWNLISTFILM']] = FilmID
