@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import konyvtarak
 import kvtmozivetites as KM
 from kvtmozivetites import correct_date
 import kvtmozidb as KMDB
@@ -33,11 +34,19 @@ def update_letszam(db, event_list):
         db.setDatas(sql,data_list)
 
 def vetitesek():
+    print ('Könyvtárlista frissítése')
+    start = timer()
+    konyvtarak.konyvtarlista_frissit()
+    end = timer()
+    print(f"... megtörtént {timedelta(seconds=end-start)} másodperc alatt")   
+
+ 
     print('Filmlista frissítése...')
     start = timer()
     filmlista_frissit()
     end = timer()
     print(f"... megtörtént {timedelta(seconds=end-start)} másodperc alatt")
+    
     sql = '''
     SELECT Library.SiteLibID, Film.SiteFilmID, DateTime(Event.Date), Event.EventID 
     FROM Event 
