@@ -8,6 +8,7 @@ utils/Vetitesek_szamokban.xlsx
 .venv/*
 __pycache__/*
 .vscode/*
+.idea/*
 .idea/kvtmzi.iml
 .idea/misc.xml
 .idea/modules.xml
