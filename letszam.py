@@ -42,7 +42,8 @@ ctl00_ContentPlaceHolder1_TextBoxFelnott
 ctl00_ContentPlaceHolder1_TextBoxNagyi
 '''
 
-def get_site (put_get, URL, params):
+
+def get_site(put_get, URL, params):
     '''
         Get the site with given useragent and parse that
         put_get: 0 if use get, 1 if use put. 
@@ -51,27 +52,29 @@ def get_site (put_get, URL, params):
         return: the parsed site.
     '''
     ua = 'Mozilla/5.0 (Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
-    header = {'User-Agent':ua}
-    
+    header = {'User-Agent': ua}
+
     if put_get == 0:
         LetszamOldal = requests.get(URL, headers=header)
     elif put_get == 1:
-        LetszamOldal = requests.post(URL,  data=params, headers=header)
+        LetszamOldal = requests.post(URL, data=params, headers=header)
     else:
-        print ("Az első paraméter csak 0 vagy 1 lehet!!!")
+        print("Az első paraméter csak 0 vagy 1 lehet!!!")
 
-    LetszamData = BS(LetszamOldal.content,'html.parser')
+    LetszamData = BS(LetszamOldal.content, 'html.parser')
     return LetszamData
 
+
 def get_all_input(LetszamData):
-    #Get all inputs from site
+    # Get all inputs from site
 
     data = {}
     inputs = LetszamData.findAll('input')
 
     for inpt in inputs:
-        data[inpt['name']]=inpt['value']
+        data[inpt['name']] = inpt['value']
     return data
+
 
 def get_all_select(LetszamData):
     data = {}
@@ -81,12 +84,14 @@ def get_all_select(LetszamData):
         data[select['name']] = ''
     return data
 
-def get_input_value(LetszamData,inputid):
-    inp = LetszamData.find("input",attrs={"id":inputid})
+
+def get_input_value(LetszamData, inputid):
+    inp = LetszamData.find("input", attrs={"id": inputid})
     return inp.get('value')
 
-def get_event_date_table(LetszamData,tableid):
-    table = LetszamData.find("table",attrs={"id":tableid})
+
+def get_event_date_table(LetszamData, tableid):
+    table = LetszamData.find("table", attrs={"id": tableid})
     Tfej = [th.get_text() for th in table.find("tr").find_all("th")]
 
     # A többi adat
@@ -94,49 +99,50 @@ def get_event_date_table(LetszamData,tableid):
     i = 0
     for Sor in table.find_all("tr")[1:]:
         Adat = dict(zip(Tfej, (td.get_text() for td in Sor.find_all("td"))))
-        Adat['sid'] = Adat.pop('\xa0')+'Select$' + str(i)
-        i+=1
+        Adat['sid'] = Adat.pop('\xa0') + 'Select$' + str(i)
+        i += 1
         Adatok.append(Adat)
     return Adatok
 
+
 def get_letszam(LibID, FilmID, EventDate):
     # constans values:
-    const = {'URL':'http://konyvtarmozi.hu/letszam.aspx',\
-        'EVENTTARGET':'__EVENTTARGET',\
-        'EVENTARGUMENT':'__EVENTARGUMENT',\
-        'LASTFOCUS':'__LASTFOCUS',\
-        'VIEWSTATE':'__VIEWSTATE',\
-        'VIEWSTATEGENERATOR':'__VIEWSTATEGENERATOR',\
-        'VIEWSTATEENCRYPTED':'__VIEWSTATEENCRYPTED',\
-        'EVENTVALIDATION':'__EVENTVALIDATION',\
-        'DROPDOWNLISTFILM':'ctl00$ContentPlaceHolder1$DropDownListFilm',\
-        'DROPDOWNLISTKONYVTAR':'ctl00$ContentPlaceHolder1$DropDownListKonyvtar'}
-    
+    const = {'URL': 'http://konyvtarmozi.hu/letszam.aspx', \
+             'EVENTTARGET': '__EVENTTARGET', \
+             'EVENTARGUMENT': '__EVENTARGUMENT', \
+             'LASTFOCUS': '__LASTFOCUS', \
+             'VIEWSTATE': '__VIEWSTATE', \
+             'VIEWSTATEGENERATOR': '__VIEWSTATEGENERATOR', \
+             'VIEWSTATEENCRYPTED': '__VIEWSTATEENCRYPTED', \
+             'EVENTVALIDATION': '__EVENTVALIDATION', \
+             'DROPDOWNLISTFILM': 'ctl00$ContentPlaceHolder1$DropDownListFilm', \
+             'DROPDOWNLISTKONYVTAR': 'ctl00$ContentPlaceHolder1$DropDownListKonyvtar'}
+
     # phase 1: dowload site
-    LetszamOldal = get_site(0, const['URL'],'')
+    LetszamOldal = get_site(0, const['URL'], '')
     input_dict = get_all_input(LetszamOldal)
     select_dict = get_all_select(LetszamOldal)
-    data = {**input_dict,**select_dict}
-    
+    data = {**input_dict, **select_dict}
+
     # phase 2: send selected Film and get the site again with some sleep
     data[const['DROPDOWNLISTFILM']] = FilmID
     data[const['DROPDOWNLISTKONYVTAR']] = '138'
     data[const['EVENTTARGET']] = 'ctl00$ContentPlaceHolder1$DropDownListFilm'
-    time.sleep(random.randint(5,20))
-    LetszamOldal = get_site(1,const['URL'],data)
+    time.sleep(random.randint(5, 20))
+    LetszamOldal = get_site(1, const['URL'], data)
 
     # phase 3: send selected Library and get the site again with some sleep
     data[const['DROPDOWNLISTFILM']] = FilmID
     data[const['DROPDOWNLISTKONYVTAR']] = LibID
     data[const['EVENTTARGET']] = 'ctl00$ContentPlaceHolder1$DropDownListKonyvtar'
-    data[const['VIEWSTATE']] = get_input_value(LetszamOldal,const['VIEWSTATE'])
-    data[const['VIEWSTATEGENERATOR']] = get_input_value(LetszamOldal,const['VIEWSTATEGENERATOR'])
-    data[const['EVENTVALIDATION']] = get_input_value(LetszamOldal,const['EVENTVALIDATION'])
-    time.sleep(random.randint(5,20))
-    LetszamOldal = get_site(1,const['URL'],data)
-    
+    data[const['VIEWSTATE']] = get_input_value(LetszamOldal, const['VIEWSTATE'])
+    data[const['VIEWSTATEGENERATOR']] = get_input_value(LetszamOldal, const['VIEWSTATEGENERATOR'])
+    data[const['EVENTVALIDATION']] = get_input_value(LetszamOldal, const['EVENTVALIDATION'])
+    time.sleep(random.randint(5, 20))
+    LetszamOldal = get_site(1, const['URL'], data)
+
     # phase 4: send selected Event and get the site again with some sleep 
-    dictlist = get_event_date_table(LetszamOldal,'ctl00_ContentPlaceHolder1_GridViewVetitesek')
+    dictlist = get_event_date_table(LetszamOldal, 'ctl00_ContentPlaceHolder1_GridViewVetitesek')
     for dict in dictlist:
         if correct_date(dict['Dátum']) == EventDate:
             if data[const['EVENTARGUMENT']] == '':
@@ -148,13 +154,16 @@ def get_letszam(LibID, FilmID, EventDate):
     data[const['DROPDOWNLISTFILM']] = FilmID
     data[const['DROPDOWNLISTKONYVTAR']] = LibID
     data[const['EVENTTARGET']] = 'ctl00$ContentPlaceHolder1$GridViewVetitesek'
-    data[const['VIEWSTATE']] = get_input_value(LetszamOldal,const['VIEWSTATE'])
-    data[const['VIEWSTATEGENERATOR']] = get_input_value(LetszamOldal,const['VIEWSTATEGENERATOR'])
-    data[const['EVENTVALIDATION']] = get_input_value(LetszamOldal,const['EVENTVALIDATION'])
-    time.sleep(random.randint(5,20))
-    LetszamOldal = get_site(1,const['URL'],data)
-    #return {'Gyerek':get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxGyerek'),'Felnőtt':get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxFelnott'),'Nagyi':get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxNagyi')}
-    return [get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxGyerek'),get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxFelnott'),get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxNagyi')]
+    data[const['VIEWSTATE']] = get_input_value(LetszamOldal, const['VIEWSTATE'])
+    data[const['VIEWSTATEGENERATOR']] = get_input_value(LetszamOldal, const['VIEWSTATEGENERATOR'])
+    data[const['EVENTVALIDATION']] = get_input_value(LetszamOldal, const['EVENTVALIDATION'])
+    time.sleep(random.randint(5, 20))
+    LetszamOldal = get_site(1, const['URL'], data)
+    # return {'Gyerek':get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxGyerek'),'Felnőtt':get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxFelnott'),'Nagyi':get_input_value(LetszamOldal,'ctl00_ContentPlaceHolder1_TextBoxNagyi')}
+    return [get_input_value(LetszamOldal, 'ctl00_ContentPlaceHolder1_TextBoxGyerek'),
+            get_input_value(LetszamOldal, 'ctl00_ContentPlaceHolder1_TextBoxFelnott'),
+            get_input_value(LetszamOldal, 'ctl00_ContentPlaceHolder1_TextBoxNagyi')]
+
 
 if __name__ == "__main__":
-   print(get_letszam("271","37","2020-11-04 16:00:00"))
+    print(get_letszam("271", "37", "2020-11-04 16:00:00"))
