@@ -10,6 +10,10 @@ URL_FOTOK = "http://konyvtarmozi.hu/kepesProgram.aspx"
 
 
 class WebAdat:
+    """
+    Alaposztály, mely inicializáláskor kapott URL-t tölt be és dolgoz fel BeautifulSoup segítségével
+    Ebben az osztályban böngésző user agent is beállításra kerül
+    """
     _USER_AGENT = 'Mozilla/5.0 (Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'
     _header = {'User-Agent': _USER_AGENT}
 
@@ -23,6 +27,9 @@ class WebAdat:
 
 
 class WebFoto(WebAdat):
+    """
+    A pillanatképek a vetítésekről oldalból nyer ki adatokat
+    """
     __data_list = []
 
     def foto_lista(self, tableID='ctl00_ContentPlaceHolder1_GridViewVetitesek'):
@@ -37,31 +44,45 @@ class WebFoto(WebAdat):
 
 
 class WebVetites(WebFoto):
-
+    """
+    A vetítések oldalról nyer ki adatokat
+    """
     def vetites_lista(self, tableID='ctl00_ContentPlaceHolder1_GridViewElmult'):
         return self.foto_lista(tableID)
 
 
-class WebLetszam(WebAdat):
-    _mozipont_lista = []
-    _film_lista = []
+class WebFilmLista(WebAdat):
+    """
+    A vetíthető filmek listájának lekérése a Létszámok rögzítése oldalról
+    """
+    __film_lista = []
 
     def get_film_lista(self, sID='ctl00_ContentPlaceHolder1_DropDownListFilm'):
-        self._film_lista.clear()
+        self.__film_lista.clear()
         film_adatok = self.web_content.find("select", attrs={"id": sID})
         for film in film_adatok.find_all("option"):
             film_adat = dict(film=film.string, id=film.get("value"))
-            self._film_lista.append(film_adat)
-        return self._film_lista
+            self.__film_lista.append(film_adat)
+        return self.__film_lista
 
+
+class WebKonyvtarLista(WebAdat):
+    """
+    A könyvtárak (mozipontok) listájának lekérése a Létszámok rögzítése oldalról
+    """
+    __mozipont_lista = []
+ 
     def get_konyvtar_lista(self, konyvtarak: list, sID='ctl00_ContentPlaceHolder1_DropDownListKonyvtar'):
-        self._mozipont_lista.clear()
+        self.__mozipont_lista.clear()
         konyvtarak_web = self.web_content.find("select", attrs={"id": sID})
         for konyvtar in konyvtarak_web.find_all("option"):
             if konyvtar.string.split()[0] in konyvtarak:
                 konyvtar_adat = dict(lib=konyvtar.string.split()[0], id=konyvtar.get("value"))
-                self._mozipont_lista.append(konyvtar_adat)
-        return self._mozipont_lista
+                self.__mozipont_lista.append(konyvtar_adat)
+        return self.__mozipont_lista
+
+
+class WebLetszam(WebAdat):
 
     def adatkuldes(self, kuldott_adat: dict):
         site = requests.post(self.URL, data=kuldott_adat, headers=self._header)
