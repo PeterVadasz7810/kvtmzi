@@ -14,3 +14,5 @@ __pycache__/*
 .idea/modules.xml
 .idea/vcs.xml
 .idea/inspectionProfiles/profiles_settings.xml
+/geckodriver.log
+/test_vetitesek_page.py

@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 from locators import VetitesekPageLocators, KonyvatarMoziURLs
 from vetitesobj import Vetites
 
@@ -18,15 +19,15 @@ class VetitesekPage(object):
     def __get_site_data(self):
         tmp_list = []
         # site_datas_soron_kovetkezo = self.browser.find_elements(*VetitesekPageLocators.l_kovetkezo_vetitesek_table)
-        site_datas_elmult = self.browser.find_elements(*VetitesekPageLocators.l_elmult_vetites_table)
-        for row in site_datas_elmult.find_elements_by_tag_name('tr'):
-            for cell in row.find_elements_by_tag_name('td'):
+        site_datas_elmult = self.browser.find_element(*VetitesekPageLocators.l_elmult_vetites_table)
+        for row in site_datas_elmult.find_elements(By.TAG_NAME, 'tr')[1:]: # because the first row contains th elements
+            for cell in row.find_elements(By.TAG_NAME, 'td'):
                 tmp_list.append(cell.text)
-            tmp_list[1] = tmp_list[1].split(' ', 1)[0]
+            tmp_list[1] = tmp_list[1].split(' ', 1)[0].strip()
             if tmp_list[1] in self.__list_of_libraries:
                 vetites = Vetites(*tmp_list)
                 self.__list_of_events.append(vetites)
-                tmp_list.clear()
+            tmp_list.clear()
 
     def get_date_from(self):
         return self.date_from
@@ -45,3 +46,12 @@ class VetitesekPage(object):
 
     def get_list_of_events_from_to(self, date_from='', date_to=''):
         pass
+
+    def get_number_of_all_events(self):
+        return len(self.__list_of_events)
+
+    def set_date_from(self, date_from):
+        self.date_from = date_from
+
+    def set_date_to(self, date_to):
+        self.date_to = date_to

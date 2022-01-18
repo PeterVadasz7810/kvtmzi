@@ -11,7 +11,7 @@ class CommonLocator(object):
     '''
     Ez az ID több oldalon is előfordul ezért kiemelem
     '''
-    __l_common_locator = (By.ID, 'ctl00_ContentPlaceHolder1_GridViewVetitesek')
+    _l_common_locator = (By.ID, 'ctl00_ContentPlaceHolder1_GridViewVetitesek')
 
 
 class VetitesekPageLocators(CommonLocator):
@@ -19,7 +19,7 @@ class VetitesekPageLocators(CommonLocator):
     A http://konyvtarmozi.hu/vetitesek.aspx oldalhoz tartozó lokátorok
     '''
     l_elmult_vetites_table = (By.ID, 'ctl00_ContentPlaceHolder1_GridViewElmult')
-    l_kovetkezo_vetitesek_table = CommonLocator.__l_common_locator
+    l_kovetkezo_vetitesek_table = CommonLocator._l_common_locator
 
 
 class PillanatkepekPageLocators(CommonLocator):
@@ -27,7 +27,7 @@ class PillanatkepekPageLocators(CommonLocator):
     A http://konyvtarmozi.hu/kepesProgram.aspx oldalhoz tartozó lokátorok
     '''
 
-    l_kepes_vetitesek_table = CommonLocator.__l_common_locator
+    l_kepes_vetitesek_table = CommonLocator._l_common_locator
 
 
 class LetszamRogzitesePageLocators(CommonLocator):
@@ -36,7 +36,7 @@ class LetszamRogzitesePageLocators(CommonLocator):
     '''
     l_film_dropdown_list = (By.ID, 'ctl00_ContentPlaceHolder1_DropDownListFilm')
     l_intezmeny_dropdown_list = (By.ID, 'ctl00_ContentPlaceHolder1_DropDownListKonyvtar')
-    l_vetites_valaszto_table = CommonLocator.__l_common_locator
+    l_vetites_valaszto_table = CommonLocator._l_common_locator
     l_kivalaszt_btn_locators = (By.XPATH, '//input[@type="button" and @value="Kiválaszt"]')
     l_vetites_datuma_locators = (By.XPATH, '//table[@id="ctl00_ContentPlaceHolder1_GridViewVetitesek"]//td[2]')
     l_felvezeto_vendeg_locators = (By.XPATH, '//table[@id="ctl00_ContentPlaceHolder1_GridViewVetitesek"]//td[3]')
