@@ -1,20 +1,29 @@
+import operator
 from selenium.webdriver.common.by import By
+from datetime import datetime as DT
+from datetime import date
 from locators import VetitesekPageLocators, KonyvatarMoziURLs
 from vetitesobj import Vetites
 
 
 class VetitesekPage(object):
 
-    def __init__(self, webdrv, libraries, date_from='', date_to=''):
+    def __init__(self, webdrv, libraries, date_from='2015-10-05', date_to=''):
+        self.__base_date = DT.strptime('2015-10-05', '%Y-%m-%d')
+        sortkey = operator.attrgetter('date')
         self.__list_of_events = []
         self.__list_of_libraries = libraries
-        self.date_from = date_from
-        self.date_to = date_to
+        self.date_from = DT.strptime(date_from, '%Y-%m-%d')
+        if date_to == '':
+            self.date_to = DT.now()
+        else:
+            self.date_to = DT.strptime(date_to, '%Y-%m-%d')
         self.browser = webdrv
         self.browser.implicitly_wait(10)
         self.browser.get(KonyvatarMoziURLs.vetitesek)
-
         self.__get_site_data()
+
+        self.__list_of_events.sort(key=sortkey, reverse=False)
 
     def __get_site_data(self):
         tmp_list = []
@@ -39,19 +48,29 @@ class VetitesekPage(object):
         return self.__list_of_events
 
     def get_list_of_events_from(self, date_from=''):
-        pass
+        if date_from != '':
+            self.set_date_from(date_from)
+        return filter(lambda event: event.date >= self.date_from, self.__list_of_events)
 
     def get_list_of_events_to(self, date_to=''):
-        pass
+        if date_to != '':
+            self.set_date_to(date_to)
+        return filter(lambda event: event.date <= self.date_to, self.__list_of_events)
 
     def get_list_of_events_from_to(self, date_from='', date_to=''):
-        pass
+        if date_from != '':
+            self.set_date_from(date_from)
+        if date_to != '':
+            self.set_date_to(date_to)
+        return filter(lambda event: self.date_from <= event.date <= self.date_to, self.__list_of_events)
 
     def get_number_of_all_events(self):
         return len(self.__list_of_events)
 
     def set_date_from(self, date_from):
-        self.date_from = date_from
+        '''TODO: date_from nem lehet nagyobb a mai nap -1 nap és nem lehet kisebb mint a __base_date'''
+        self.date_from = DT.strptime(date_from, '%Y-%m-%d')
 
     def set_date_to(self, date_to):
-        self.date_to = date_to
+        '''TODO: date_to nem lehet kisebb mint a __base_date +1 nap és nem lehet nagyobb mint a mai nap'''
+        self.date_to = DT.strptime(date_to, '%Y-%m-%d')
