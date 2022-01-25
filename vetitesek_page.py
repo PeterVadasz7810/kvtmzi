@@ -1,7 +1,6 @@
 import operator
 from selenium.webdriver.common.by import By
 from datetime import datetime as DT
-from datetime import date
 from locators import VetitesekPageLocators, KonyvatarMoziURLs
 from vetitesobj import Vetites
 
