@@ -11,6 +11,7 @@ class VetitesekPage(object):
         self.__base_date = DT.strptime('2015-10-05', '%Y-%m-%d')
         sortkey = operator.attrgetter('date')
         self.__list_of_events = []
+        self.__filtered_list_of_events = []
         self.__list_of_libraries = libraries
         self.date_from = DT.strptime(date_from, '%Y-%m-%d')
         if date_to == '':
@@ -37,39 +38,44 @@ class VetitesekPage(object):
                 self.__list_of_events.append(vetites)
             tmp_list.clear()
 
-    def get_date_from(self):
+    def get_date_from(self) -> DT:
         return self.date_from
 
-    def get_date_to(self):
+    def get_date_to(self) -> DT:
         return self.date_to
 
-    def get_list_of_all_events(self):
+    def get_list_of_all_events(self) -> list:
         return self.__list_of_events
 
-    def get_list_of_events_from(self, date_from=''):
-        if date_from != '':
-            self.set_date_from(date_from)
-        return filter(lambda event: event.date >= self.date_from, self.__list_of_events)
-
-    def get_list_of_events_to(self, date_to=''):
-        if date_to != '':
-            self.set_date_to(date_to)
-        return filter(lambda event: event.date <= self.date_to, self.__list_of_events)
-
-    def get_list_of_events_from_to(self, date_from='', date_to=''):
+    def get_list_of_events(self, date_from='', date_to='') -> list:
+        tmp_date = DT.now()
         if date_from != '':
             self.set_date_from(date_from)
         if date_to != '':
             self.set_date_to(date_to)
-        return filter(lambda event: self.date_from <= event.date <= self.date_to, self.__list_of_events)
+        if self.date_from > self.date_to:
+            tmp_date = self.date_to
+            self.date_to = self.date_from
+            self.date_from = tmp_date
 
-    def get_number_of_all_events(self):
+        self.__filtered_list_of_events.clear()
+        self.__filtered_list_of_events = list(filter(lambda event: self.date_from <= event.date <= self.date_to, self.__list_of_events))
+        return self.__filtered_list_of_events
+
+    def get_number_of_all_events(self) -> int:
         return len(self.__list_of_events)
 
+    def get_number_of_filtered_events(self) -> int:
+        return len(self.__filtered_list_of_events)
+
     def set_date_from(self, date_from):
-        '''TODO: date_from nem lehet nagyobb a mai nap -1 nap és nem lehet kisebb mint a __base_date'''
-        self.date_from = DT.strptime(date_from, '%Y-%m-%d')
+        if self.__base_date > DT.strptime(date_from, '%Y-%m-%d'):
+            self.date_from = self.__base_date
+        else:
+            self.date_from = DT.strptime(date_from, '%Y-%m-%d')
 
     def set_date_to(self, date_to):
-        '''TODO: date_to nem lehet kisebb mint a __base_date +1 nap és nem lehet nagyobb mint a mai nap'''
-        self.date_to = DT.strptime(date_to, '%Y-%m-%d')
+        if self.__base_date > DT.strptime(date_to, '%Y-%m-%d'):
+            self.date_to = self.__base_date
+        else:
+            self.date_to = DT.strptime(date_to, '%Y-%m-%d')
