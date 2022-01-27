@@ -1,10 +1,7 @@
-from vetitesobj import Vetites
+class Letszam(object):
 
-
-class Letszam(Vetites):
-
-    def __init__(self, event, identifier, children, adult, granny):
-        super(Letszam, self).__init__(*event)
+    def __init__(self, vetites, identifier, children, adult, granny):
+        self.vetites = vetites
         self.uniq_identifier = identifier
         self.children = children
         self.adult = adult

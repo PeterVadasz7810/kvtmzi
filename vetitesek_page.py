@@ -3,6 +3,8 @@ from selenium.webdriver.common.by import By
 from datetime import datetime as DT
 from locators import VetitesekPageLocators, KonyvatarMoziURLs
 from vetitesobj import Vetites
+import filmobj
+import libraryobj
 
 
 class VetitesekPage(object):
@@ -27,15 +29,34 @@ class VetitesekPage(object):
 
     def __get_site_data(self):
         tmp_list = []
-        # site_datas_soron_kovetkezo = self.browser.find_elements(*VetitesekPageLocators.l_kovetkezo_vetitesek_table)
+
         site_datas_elmult = self.browser.find_element(*VetitesekPageLocators.l_elmult_vetites_table)
-        for row in site_datas_elmult.find_elements(By.TAG_NAME, 'tr')[1:]: # because the first row contains th elements
-            for cell in row.find_elements(By.TAG_NAME, 'td'):
-                tmp_list.append(cell.text)
-            tmp_list[1] = tmp_list[1].split(' ', 1)[0].strip()
-            if tmp_list[1] in self.__list_of_libraries:
-                vetites = Vetites(*tmp_list)
-                self.__list_of_events.append(vetites)
+        
+        for row in site_datas_elmult.find_elements(By.TAG_NAME, 'tr')[1:]:  # because the first row contains th elements
+            cells = row.find_elements(By.TAG_NAME, 'td')
+
+            # if not relevant, throw it 
+            if not (self.date_from <= DT.strptime(cells[2].text, '%Y.%m.%d. %H:%M:%S') <= self.date_to):
+                continue
+
+            # if not relevant, throw it
+            if cells[1].text.split(' ', 1)[0].strip() not in self.__list_of_libraries:
+                continue
+
+            for x, cell in enumerate(cells):
+                if (x == 0) or (x == 1):
+                    id = cell.find_element(By.TAG_NAME, 'a').get_attribute('href').split('=')[1].strip()
+                if x == 0:
+                    film = filmobj.Film(cell.text, id)
+                    tmp_list.append(film)
+                elif x == 1:
+                    lib = libraryobj.Library(cell.text, cell.text.split(' ', 1)[0].strip(), id)
+                    tmp_list.append(lib)
+                else:
+                    tmp_list.append(cell.text)
+
+            vetites = Vetites(*tmp_list)
+            self.__list_of_events.append(vetites)
             tmp_list.clear()
 
     def get_date_from(self) -> DT:
@@ -59,7 +80,8 @@ class VetitesekPage(object):
             self.date_from = tmp_date
 
         self.__filtered_list_of_events.clear()
-        self.__filtered_list_of_events = list(filter(lambda event: self.date_from <= event.date <= self.date_to, self.__list_of_events))
+        self.__filtered_list_of_events = list(
+            filter(lambda event: self.date_from <= event.date <= self.date_to, self.__list_of_events))
         return self.__filtered_list_of_events
 
     def get_number_of_all_events(self) -> int:
