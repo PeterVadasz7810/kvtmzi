@@ -1,4 +1,4 @@
-import operator
+from operator import attrgetter
 from selenium.webdriver.common.by import By
 from datetime import datetime as DT
 from locators import VetitesekPageLocators, KonyvatarMoziURLs
@@ -11,7 +11,7 @@ class VetitesekPage(object):
 
     def __init__(self, webdrv, libraries, date_from='2015-10-05', date_to=''):
         self.__base_date = DT.strptime('2015-10-05', '%Y-%m-%d')
-        sortkey = operator.attrgetter('date')
+        sortkey = attrgetter('date')
         self.__list_of_events = []
         self.__filtered_list_of_events = []
         self.__list_of_libraries = libraries
