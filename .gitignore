@@ -16,3 +16,17 @@ __pycache__/*
 .idea/inspectionProfiles/profiles_settings.xml
 /geckodriver.log
 /test_vetitesek_page.py
+kvtmzi.spec
+build/kvtmzi/Analysis-00.toc
+build/kvtmzi/base_library.zip
+build/kvtmzi/EXE-00.toc
+build/kvtmzi/kvtmzi.exe.manifest
+build/kvtmzi/kvtmzi.pkg
+build/kvtmzi/PKG-00.toc
+build/kvtmzi/PYZ-00.pyz
+build/kvtmzi/PYZ-00.toc
+build/kvtmzi/warn-kvtmzi.txt
+build/kvtmzi/xref-kvtmzi.html
+build/kvtmzi/localpycos/struct.pyo
+dist/kvtmzi.exe
+dist/telepulesek.json
